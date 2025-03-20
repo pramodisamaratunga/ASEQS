@@ -1,0 +1,54 @@
+# Byte-compiled / cached
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env/
+*.env
+*.venv
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# Editor files
+.vscode/
+.idea/
+*.iml
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs and database files
+logs/
+*.log
+*.sqlite3
+*.db
+
+# FastAPI related
+instance/
+*.pid
+*.seed
+*.backup
+
+# Pytest / Coverage
+htmlcov/
+.coverage
+.tox/
+.nox/
+pytest_cache/
+coverage.xml
+*.cover
+
+# Build / distribution files
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Docker related
+docker-compose.override.yml
+*.dockerfile
+*.tar
