@@ -1,14 +1,16 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 import httpx
-from .database import SessionLocal, engine
-from . import models, schemas
 
+from app.database import SessionLocal, engine
+from app import models, schemas
+
+# Tạo bảng trong database nếu chưa có
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Dependency cho DB
+# Dependency lấy session DB
 def get_db():
     db = SessionLocal()
     try:
@@ -16,7 +18,7 @@ def get_db():
     finally:
         db.close()
 
-# Hàm gọi LLM LM Studio
+# Gọi LLM từ LM Studio
 async def send_to_llm(message_type: str, content: str):
     url = "http://localhost:1234/v1/chat/completions"
     headers = {"Content-Type": "application/json"}
@@ -31,24 +33,29 @@ async def send_to_llm(message_type: str, content: str):
         result = response.json()
         return result['choices'][0]['message']['content']
 
-# API CRUD
+# Tạo message mới
 @app.post("/messages/", response_model=schemas.MessageResponse)
 async def create_message(msg: schemas.MessageCreate, db: Session = Depends(get_db)):
     response_llm = await send_to_llm(msg.message_type, msg.content)
-    db_msg = models.Message(message_type=msg.message_type, content=msg.content, response=response_llm)
+    db_msg = models.Message(
+        message_type=msg.message_type,
+        content=msg.content,
+        response=response_llm
+    )
     db.add(db_msg)
     db.commit()
     db.refresh(db_msg)
     return db_msg
 
+# Lấy message theo id
 @app.get("/messages/{msg_id}", response_model=schemas.MessageResponse)
 def read_message(msg_id: int, db: Session = Depends(get_db)):
     msg = db.query(models.Message).filter(models.Message.id == msg_id).first()
-    if msg is None:
+    if not msg:
         raise HTTPException(status_code=404, detail="Message not found")
     return msg
 
+# Lấy toàn bộ message (phân trang)
 @app.get("/messages/", response_model=list[schemas.MessageResponse])
 def read_all_messages(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    msgs = db.query(models.Message).offset(skip).limit(limit).all()
-    return msgs
+    return db.query(models.Message).offset(skip).limit(limit).all()

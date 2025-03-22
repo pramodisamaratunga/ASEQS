@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class MessageBase(BaseModel):
     message_type: str
@@ -10,6 +11,7 @@ class MessageCreate(MessageBase):
 class MessageResponse(MessageBase):
     id: int
     response: str | None = None
+    created_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
