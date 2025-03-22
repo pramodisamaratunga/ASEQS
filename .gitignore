@@ -1,7 +1,13 @@
 # Byte-compiled / cached
+.app/__pycache__
 __pycache__/
 *.py[cod]
 *$py.class
+app/__pycache__/
+__pycache__/
+*.py[cod]
+:app/__pycache__/
+app/__pycache__/
 
 # Virtual environments
 venv/
